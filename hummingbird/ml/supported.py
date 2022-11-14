@@ -115,6 +115,7 @@ from ._utils import (
     tvm_installed,
     sparkml_installed,
     prophet_installed,
+    sklearn_pmml_installed,
 )
 
 
@@ -278,6 +279,18 @@ def _build_sklearn_operator_list():
 
     return []
 
+def _build_sklearn_pmml_operator_list():
+    """
+    List all supported SKLearn PMML operators.
+    """
+    if sklearn_pmml_installed():
+        from sklearn_pmml_model.ensemble import PMMLGradientBoostingClassifier
+        supported_ops = [
+            PMMLGradientBoostingClassifier,
+        ]
+        return supported_ops
+
+
 
 def _build_sparkml_operator_list():
     """
@@ -417,16 +430,21 @@ def _build_sklearn_api_operator_name_map():
         "Bagging",
     ]
 
-    return {
+    skl_map = {
         k: "Sklearn" + k.__name__ if hasattr(k, "__name__") else k
         for k in sklearn_operator_list
         + pipeline_operator_list
         + xgb_operator_list
         + lgbm_operator_list
         + prophet_operator_list
+        + sklearn_pmml_operator_list
     }
 
+    skl_map.update({'sklearn_pmml_model.ensemble.gb.PMMLGradientBoostingClassifier': 'SklearnGradientBoostingClassifier'})
 
+    return skl_map
+
+   
 def _build_onnxml_api_operator_name_map():
     """
     Associate ONNXML with the operator class names.
@@ -505,6 +523,7 @@ lgbm_operator_list = _build_lightgbm_operator_list()
 onnxml_operator_list = _build_onnxml_operator_list()
 sparkml_operator_list = _build_sparkml_operator_list()
 prophet_operator_list = _build_prophet_operator_list()
+sklearn_pmml_operator_list = _build_sklearn_pmml_operator_list()
 
 sklearn_api_operator_name_map = _build_sklearn_api_operator_name_map()
 onnxml_api_operator_name_map = _build_onnxml_api_operator_name_map()

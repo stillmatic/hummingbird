@@ -104,6 +104,21 @@ def assert_sklearn_installed():
     assert sklearn_installed()
 
 
+def sklearn_pmml_installed():
+    """
+    Checks that *SKLearn PMML* is available.
+    """
+    try:
+        import sklearn_pmml_model
+
+        return True
+    except ImportError:
+        return False
+
+
+def assert_sklearn_pmml_installed():
+    assert sklearn_pmml_installed()
+
 def lightgbm_installed():
     """
     Checks that *LightGBM* is available.
