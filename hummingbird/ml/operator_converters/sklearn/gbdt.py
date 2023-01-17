@@ -132,6 +132,8 @@ def convert_sklearn_gbdt_regressor(operator, device, extra_config):
     else:
         raise RuntimeError("Custom initializers for GBDT are not yet supported in Hummingbird.")
 
+    if type(base_prediction[0]) == str:
+        base_prediction = [float(x) for x in base_prediction]
     extra_config[constants.BASE_PREDICTION] = base_prediction
 
     return convert_gbdt_common(operator, tree_infos, get_parameters_for_sklearn_common, n_features, None, extra_config)
