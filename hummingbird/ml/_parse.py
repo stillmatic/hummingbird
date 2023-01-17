@@ -35,6 +35,11 @@ try:
 except ImportError:
     StackingClassifier = None
 
+try:
+    from xgboost.sklearn import XGBClassifier
+except ImportError:
+    XGBClassifier = None
+
 do_not_merge_columns = tuple(filter(lambda op: op is not None, [OneHotEncoder, ColumnTransformer]))
 
 
@@ -256,6 +261,11 @@ def _parse_sklearn_single_model(topology, model, inputs):
     # We assume that all scikit-learn operators produce a single output.
     variable = topology.declare_logical_variable("variable")
     this_operator.outputs.append(variable)
+
+    # ... unless they don't.
+    if type(model) == XGBClassifier:
+        predictions = topology.declare_logical_variable("predictions")
+        this_operator.outputs.append(predictions)
 
     return this_operator.outputs
 

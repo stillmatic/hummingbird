@@ -134,6 +134,8 @@ def _convert_xgboost(model, backend, test_input, device, extra_config={}):
     booster = model.get_booster() if hasattr(model, "get_booster") else model
     if hasattr(booster, "num_features"):
         extra_config[constants.N_FEATURES] = booster.num_features()
+    elif hasattr(booster, "feature_names"):
+        extra_config[constants.N_FEATURES] = len(booster.feature_names)
     elif "_features_count" in dir(model):
         extra_config[constants.N_FEATURES] = model._features_count
     elif test_input is not None:
@@ -150,6 +152,14 @@ def _convert_xgboost(model, backend, test_input, device, extra_config={}):
             "XGBoost converter is not able to infer the number of input features.\
                 Please pass some test_input to the converter."
         )
+
+    # Add an extra field to output (labels, predictions) if this is a classifier
+    if hasattr(model, "get_xgb_params"):
+        params = model.get_xgb_params()
+        if params.get("objective") == "binary:logistic":
+            extra_config[constants.OUTPUT_NAMES] = ['labels', 'predictions']
+
+
     return _convert_sklearn(model, backend, test_input, device, extra_config)
 
 
